@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roast My GitHub 🔥 · Developer Profile Audit</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- Ambient background glow & grid -->
+<div class="ambient-glow"></div>
+<div class="bg-grid"></div>
+
+<!-- App Navigation Bar -->
+<header class="app-nav">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <span class="brand-flame">🔥</span>
+      <span class="brand-title">Roast My GitHub</span>
+      <span class="nav-badge">Audit 2.0</span>
+    </div>
+    <div class="nav-meta">
+      <span class="nav-pill">
+        <span class="pulse-dot"></span> Rule-Based + Gemini AI
+      </span>
+    </div>
+  </div>
+</header>
+
+<main class="main-content">
+
+  <!-- =====================================================
+       SCREEN 1 — LANDING
+       ===================================================== -->
+  <section id="screen-landing" class="screen active">
+    <div class="landing-container">
+      
+      <!-- Top Tagline Pill -->
+      <div class="hero-tag-pill">
+        <span class="pill-spark">⚡</span> Developer Portfolio Quality Scanner
+      </div>
+
+      <!-- Hero Headline -->
+      <h1 class="landing-title">
+        ROAST MY <span class="gradient-text">GITHUB</span>
+      </h1>
+
+      <p class="landing-subtitle">
+        Think your GitHub is recruiter-ready? Let's find out.<br />
+        <span class="subtitle-sub">Deterministic 4-category scoring meets unvarnished AI feedback.</span>
+      </p>
+
+      <!-- Input Card -->
+      <div class="hero-card">
+        <div class="input-group">
+          <div class="input-wrapper">
+            <span class="input-prefix">github.com/</span>
+            <input
+              id="username-input"
+              class="input-username"
+              type="text"
+              placeholder="username"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="none"
+              spellcheck="false"
+              maxlength="39"
+            />
+          </div>
+          <button id="btn-roast-me" class="btn-roast">
+            <span>ROAST ME</span>
+            <span class="btn-icon">🔥</span>
+          </button>
+        </div>
+
+        <div class="demo-cta-container">
+          <button id="btn-try-demo" class="btn-demo">
+            <span class="demo-icon">🎯</span> Try Sample Profile <span class="demo-tag">(Demo Mode)</span>
+          </button>
+        </div>
+
+        <p class="landing-note">
+          <span class="note-lock">🔒</span> Evaluates public profile &amp; repositories. No login required.
+        </p>
+        <p id="landing-error" class="error-message"></p>
+      </div>
+
+      <!-- Feature Badges -->
+      <div class="feature-chips">
+        <div class="chip">
+          <span class="chip-icon">📝</span>
+          <span class="chip-text">Documentation Audit</span>
+        </div>
+        <div class="chip">
+          <span class="chip-icon">⚡</span>
+          <span class="chip-text">Activity Signals</span>
+        </div>
+        <div class="chip">
+          <span class="chip-icon">🎨</span>
+          <span class="chip-text">Presentation Metric</span>
+        </div>
+        <div class="chip">
+          <span class="chip-icon">🤖</span>
+          <span class="chip-text">Gemini Roast Engine</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- =====================================================
+       SCREEN 2 — ANALYZING
+       ===================================================== -->
+  <section id="screen-analyzing" class="screen">
+    <div class="analyzing-card">
+      <div class="analyzing-header">
+        <div class="analyzing-pulse-wrap">
+          <div class="analyzing-pulse"></div>
+          <span class="radar-icon">📡</span>
+        </div>
+        <h2 class="analyzing-title">Analyzing <span id="analyzing-username">@username</span></h2>
+        <p class="analyzing-sub">Running deterministic heuristics and documentation checks...</p>
+      </div>
+
+      <ul class="steps-list" id="steps-list">
+        <li class="step" id="step-profile">
+          <span class="step-icon">○</span>
+          <span class="step-label">Fetching public profile metadata</span>
+        </li>
+        <li class="step" id="step-repos">
+          <span class="step-icon">○</span>
+          <span class="step-label">Loading repositories &amp; language metrics</span>
+        </li>
+        <li class="step" id="step-readme">
+          <span class="step-icon">○</span>
+          <span class="step-label">Auditing documentation &amp; README coverage</span>
+        </li>
+        <li class="step" id="step-score">
+          <span class="step-icon">○</span>
+          <span class="step-label">Calculating 4-category health score</span>
+        </li>
+        <li class="step" id="step-roast">
+          <span class="step-icon">○</span>
+          <span class="step-label">Synthesizing roast via Gemini 🤖</span>
+        </li>
+      </ul>
+
+      <div class="analyzing-footer-hint">
+        <span>Please wait a moment while we scan your profile...</span>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- =====================================================
+       SCREEN 3 — RESULTS
+       ===================================================== -->
+  <section id="screen-results" class="screen">
+    <div class="container">
+
+      <!-- Demo Mode Notice Banner -->
+      <div id="demo-banner" class="demo-banner hidden">
+        <div class="demo-banner-content">
+          <span class="banner-badge">DEMO MODE</span>
+          <span>Displaying realistic sample developer profile. Live API audits active when tokens are configured.</span>
+        </div>
+      </div>
+
+      <!-- Profile Header & Overall Score Grid -->
+      <div class="dashboard-hero-grid">
+        
+        <!-- Left: Profile Identity Card -->
+        <div class="profile-header">
+          <div class="avatar-wrap">
+            <img id="res-avatar" class="profile-avatar" src="" alt="Avatar" />
+            <div class="avatar-status-dot"></div>
+          </div>
+          <div class="profile-info">
+            <div class="profile-title-row">
+              <h2 class="profile-name">
+                <a id="res-profile-link" href="#" target="_blank" rel="noopener">
+                  @<span id="res-username"></span>
+                  <span class="link-arrow">↗</span>
+                </a>
+              </h2>
+            </div>
+            <p id="res-bio" class="profile-bio"></p>
+            <div class="profile-meta-pills" id="profile-pills">
+              <span class="meta-pill" id="res-meta">0 public repos</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Health Score Gauge Card -->
+        <div class="score-hero">
+          <div class="score-gauge-wrap">
+            <svg class="score-gauge-svg" viewBox="0 0 120 120">
+              <circle class="score-gauge-bg" cx="60" cy="60" r="50" />
+              <circle id="score-gauge-bar" class="score-gauge-fill" cx="60" cy="60" r="50" stroke-dasharray="314.16" stroke-dashoffset="314.16" />
+            </svg>
+            <div class="score-gauge-center">
+              <span class="score-number" id="res-score">0</span>
+              <span class="score-denom">/ 100</span>
+            </div>
+          </div>
+          <div class="score-details-col">
+            <div class="score-label-sub">GITHUB HEALTH SCORE</div>
+            <div id="res-grade" class="score-grade">—</div>
+            <p class="score-caption">Deterministic score based on 4 measurable portfolio pillars.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Category Score Cards: 2x2 Grid -->
+      <div class="section-label-header">
+        <span class="section-badge">METRICS</span>
+        <h3>Performance by Category</h3>
+      </div>
+
+      <div class="categories-grid">
+
+        <div class="category-card" id="card-doc">
+          <div class="category-header">
+            <span class="category-name">
+              <span class="cat-icon">📝</span> Documentation
+            </span>
+            <span class="category-score" id="score-doc">—</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="bar-doc" style="width:0%"></div>
+          </div>
+          <button class="evidence-toggle" onclick="toggleEvidence('ev-doc', this)">Show details ▾</button>
+          <div class="evidence-container" id="ev-doc">
+            <ul class="evidence-list" id="ev-doc-list"></ul>
+          </div>
+        </div>
+
+        <div class="category-card" id="card-act">
+          <div class="category-header">
+            <span class="category-name">
+              <span class="cat-icon">⚡</span> Activity
+            </span>
+            <span class="category-score" id="score-act">—</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="bar-act" style="width:0%"></div>
+          </div>
+          <button class="evidence-toggle" onclick="toggleEvidence('ev-act', this)">Show details ▾</button>
+          <div class="evidence-container" id="ev-act">
+            <ul class="evidence-list" id="ev-act-list"></ul>
+          </div>
+        </div>
+
+        <div class="category-card" id="card-pres">
+          <div class="category-header">
+            <span class="category-name">
+              <span class="cat-icon">🎨</span> Presentation
+            </span>
+            <span class="category-score" id="score-pres">—</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="bar-pres" style="width:0%"></div>
+          </div>
+          <button class="evidence-toggle" onclick="toggleEvidence('ev-pres', this)">Show details ▾</button>
+          <div class="evidence-container" id="ev-pres">
+            <ul class="evidence-list" id="ev-pres-list"></ul>
+          </div>
+        </div>
+
+        <div class="category-card" id="card-prof">
+          <div class="category-header">
+            <span class="category-name">
+              <span class="cat-icon">👤</span> Profile
+            </span>
+            <span class="category-score" id="score-prof">—</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="bar-prof" style="width:0%"></div>
+          </div>
+          <button class="evidence-toggle" onclick="toggleEvidence('ev-prof', this)">Show details ▾</button>
+          <div class="evidence-container" id="ev-prof">
+            <ul class="evidence-list" id="ev-prof-list"></ul>
+          </div>
+        </div>
+
+      </div><!-- /categories-grid -->
+
+      <!-- Strengths + Weaknesses Grid -->
+      <div class="sw-grid">
+        <div class="section-card sw-card sw-strengths">
+          <div class="section-title">
+            <span class="status-indicator icon-strength">✔</span> Key Strengths
+          </div>
+          <ul class="sw-list" id="strengths-list"></ul>
+        </div>
+        <div class="section-card sw-card sw-weaknesses">
+          <div class="section-title">
+            <span class="status-indicator icon-weakness">▲</span> Detected Weaknesses
+          </div>
+          <ul class="sw-list" id="weaknesses-list"></ul>
+        </div>
+      </div>
+
+      <!-- AI Roast Section (Signature Feature) -->
+      <div class="section-card roast-card">
+        <div class="roast-top-bar">
+          <div class="roast-heading">
+            <span class="flame-badge">🔥</span>
+            <span class="roast-title-text">AI ROAST</span>
+          </div>
+          <div class="gemini-pill">
+            <span class="gemini-sparkle">✨</span> Powered by Gemini
+          </div>
+        </div>
+
+        <div id="fallback-badge" class="fallback-badge hidden">⚠️ Offline summary mode active</div>
+
+        <div class="roast-content-wrapper">
+          <div class="quote-sign">“</div>
+          <p class="roast-text" id="res-roast">Analyzing profile nuances...</p>
+        </div>
+
+        <div class="encouragement-box">
+          <span class="enc-spark">💡</span>
+          <p class="encouragement-text" id="res-encouragement"></p>
+        </div>
+      </div>
+
+      <!-- Top Problems & Actionable Fixes -->
+      <div class="action-grid">
+        
+        <!-- Problems Card -->
+        <div class="section-card action-card">
+          <div class="section-title">
+            <span class="title-icon">⚠️</span> Top Problems Found
+          </div>
+          <ul class="problems-list" id="problems-list"></ul>
+        </div>
+
+        <!-- Actionable Steps Card -->
+        <div class="section-card action-card">
+          <div class="section-title">
+            <span class="title-icon">💡</span> How to Fix It
+          </div>
+          <ol class="rec-list" id="rec-list"></ol>
+        </div>
+
+      </div>
+
+      <!-- WOW Feature — README Generator -->
+      <div class="readme-section" id="readme-section">
+        <div class="readme-section-header">
+          <div class="readme-header-left">
+            <span class="readme-badge">✨ WOW FEATURE</span>
+            <h3 class="readme-title">Fix My README</h3>
+            <p class="readme-sub">
+              Select an undocumented repository to auto-generate a recruiter-ready starter template.
+            </p>
+          </div>
+        </div>
+
+        <div class="repo-selector-wrap">
+          <span class="selector-label">SELECT REPOSITORY:</span>
+          <div class="repo-selector" id="repo-selector"></div>
+        </div>
+
+        <div class="generate-action-row">
+          <button class="btn-generate" id="btn-generate-readme" disabled>
+            <span class="gen-icon">✨</span> Generate Better README
+          </button>
+        </div>
+
+        <!-- Code Window Presentation -->
+        <div class="readme-output" id="readme-output">
+          <div class="code-window-bar">
+            <div class="window-controls">
+              <span class="win-dot dot-close"></span>
+              <span class="win-dot dot-min"></span>
+              <span class="win-dot dot-max"></span>
+            </div>
+            <div class="window-tab">
+              <span class="tab-icon">📄</span>
+              <span class="tab-filename">README.md</span>
+            </div>
+            <button class="btn-copy" id="btn-copy-readme">
+              <span class="copy-icon">📋</span> Copy Markdown
+            </button>
+          </div>
+          <pre class="readme-content" id="readme-content"></pre>
+        </div>
+      </div>
+
+      <!-- Reset / Roast Another CTA -->
+      <div class="reset-wrapper">
+        <button class="btn-reset" id="btn-reset">
+          <span class="reset-arrow">←</span> Roast Another GitHub Profile
+        </button>
+      </div>
+
+    </div><!-- /container -->
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  <div class="footer-container">
+    <p>Built for <strong>PromptRush Hackathon</strong> &nbsp;·&nbsp; Powered by GitHub REST API &amp; Google Gemini</p>
+    <p class="footer-sub">Rule-Based Deterministic Scoring + AI Natural Language Interpretation</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
