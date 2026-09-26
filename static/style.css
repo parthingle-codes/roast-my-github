@@ -1171,6 +1171,81 @@ a:hover {
   letter-spacing: 0.1px;
 }
 
+.roast-headline-wrap {
+  margin-bottom: 14px;
+}
+
+.roast-headline {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #fdba74;
+  letter-spacing: -0.3px;
+  line-height: 1.3;
+}
+
+.roast-takeaways-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+@media (max-width: 680px) {
+  .roast-takeaways-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.takeaway-card {
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  background: rgba(18, 22, 29, 0.6);
+}
+
+.takeaway-meaning {
+  border-color: rgba(249, 115, 22, 0.3);
+  background: rgba(249, 115, 22, 0.05);
+}
+
+.takeaway-fix {
+  border-color: rgba(88, 166, 255, 0.3);
+  background: rgba(88, 166, 255, 0.05);
+}
+
+.takeaway-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.takeaway-icon {
+  font-size: 0.9rem;
+}
+
+.takeaway-tag {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.takeaway-meaning .takeaway-tag {
+  color: #fdba74;
+}
+
+.takeaway-fix .takeaway-tag {
+  color: #93c5fd;
+}
+
+.takeaway-text {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.45;
+  margin: 0;
+}
+
 .encouragement-box {
   background: rgba(63, 185, 80, 0.08);
   border: 1px solid rgba(63, 185, 80, 0.25);

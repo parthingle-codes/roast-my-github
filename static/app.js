@@ -245,7 +245,25 @@ function renderResults(profile, analysis, roastData) {
     fallbackBadge.classList.add("hidden");
   }
 
+  // Roast headline
+  const headlineEl = document.getElementById("res-roast-headline");
+  if (headlineEl) {
+    headlineEl.textContent = roastData.roast_headline || "Your GitHub in a nutshell 😂";
+  }
+
+  // Roast core narrative
   document.getElementById("res-roast").textContent = roastData.roast || "No roast generated.";
+
+  // What it means & The Fix
+  const meaningEl = document.getElementById("res-roast-meaning");
+  if (meaningEl) {
+    meaningEl.textContent = roastData.what_it_means || "Visitors may not immediately understand your project portfolio.";
+  }
+
+  const fixEl = document.getElementById("res-roast-fix");
+  if (fixEl) {
+    fixEl.textContent = roastData.fix || "Add a quick README to your 3 best repositories.";
+  }
   
   const encEl = document.getElementById("res-encouragement");
   encEl.textContent = roastData.encouragement || "Keep building — every top portfolio started somewhere.";

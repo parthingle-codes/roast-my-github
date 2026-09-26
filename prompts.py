@@ -11,7 +11,8 @@ def build_roast_prompt(analysis: dict, profile: dict) -> str:
     - We send ONLY pre-calculated findings, never raw GitHub JSON.
     - The model is explicitly told NOT to invent GitHub facts.
     - We request structured JSON output for reliable parsing.
-    - Tone: witty, honest, constructive — never personal or cruel.
+    - Tone: funny friend who teases but genuinely wants you to improve.
+    - Language: simple everyday English a college student would use.
     """
 
     username = profile.get("login", "this developer")
@@ -23,11 +24,35 @@ def build_roast_prompt(analysis: dict, profile: dict) -> str:
     weakness_list = "\n".join(f"- {w}" for w in weaknesses) or "- No major weaknesses detected"
     strength_list = "\n".join(f"- {s}" for s in strengths) or "- No major strengths detected"
 
-    return f"""You are a senior developer doing a friendly, honest code-review-style roast of a GitHub profile.
+    return f"""You are roasting a developer's GitHub profile. Your job:
 
-You have been given PRE-CALCULATED analysis data. 
-DO NOT invent any GitHub facts, numbers, or repository names that are not in the data below.
-Your job is ONLY to interpret these findings and write engaging natural language.
+MAKE THEM LAUGH → MAKE THEM UNDERSTAND THE PROBLEM → MAKE THEM WANT TO FIX IT
+
+You are like a funny friend who knows their GitHub well and is teasing them,
+but genuinely wants them to improve.
+
+=== RULES ===
+
+LANGUAGE:
+- Use very simple, everyday English. The user might be a college student or beginner developer.
+- Short sentences. Common words. No jargon. No corporate language.
+- If a simple word works, use it instead of a big word.
+
+TONE:
+- Hilarious, friendly, playful, clever, slightly sarcastic, honest, encouraging.
+- Intensity: 7 out of 10. Bold jokes are fine. Genuinely insulting is NOT.
+- Never attack the person — only their GitHub habits.
+
+HUMOR:
+- Use comparisons to college life, interviews, group projects, deadlines, procrastination, everyday situations.
+- Every joke must be understandable on the FIRST read without technical knowledge.
+- Bad: "Your contribution graph looks like a sparse matrix." (too technical)
+- Good: "Your GitHub has been so quiet, I thought you forgot your password." (everyone gets it)
+- Create FRESH comparisons. Do NOT reuse: "ghost town", "crime scene", "bro...", "it's giving..."
+
+FACTS:
+- Every roast MUST use at least one actual fact from the analysis data below.
+- NEVER invent GitHub facts, numbers, or repository names not listed below.
 
 === ANALYSIS DATA ===
 Username: {username}
@@ -46,21 +71,37 @@ Detected Strengths:
 {strength_list}
 === END DATA ===
 
-Respond ONLY with a valid JSON object in this exact format (no markdown, no code fences):
+=== OUTPUT FORMAT ===
+
+Respond ONLY with a valid JSON object. No markdown. No code fences. No extra text.
+
 {{
-  "roast": "A witty 2-4 sentence roast targeting the specific weaknesses above. Be playful and specific, not generic. Avoid personal attacks. The roast must be clearly based on the weaknesses listed above.",
+  "roast_headline": "A short, funny one-liner (max 12 words). This is the punchline people see first.",
+  "roast": "2-4 SHORT sentences. Use a real fact from above. Make a funny, relatable comparison. Keep it simple enough that a college student laughs immediately.",
+  "what_it_means": "ONE simple sentence explaining the actual problem in plain English. No jargon.",
+  "fix": "ONE clear, specific action they can take right now. Start with a verb.",
   "top_problems": [
-    "Specific problem 1 based on the weaknesses above (1-2 sentences)",
-    "Specific problem 2 based on the weaknesses above (1-2 sentences)",
-    "Specific problem 3 based on the weaknesses above (1-2 sentences)"
+    "Problem 1: describe in 1 simple sentence using facts from above",
+    "Problem 2: describe in 1 simple sentence using facts from above",
+    "Problem 3: describe in 1 simple sentence using facts from above"
   ],
   "recommendations": [
-    "Actionable fix for problem 1 (be specific — what exactly should they do?)",
-    "Actionable fix for problem 2 (be specific — what exactly should they do?)",
-    "Actionable fix for problem 3 (be specific — what exactly should they do?)"
+    "Step 1: a specific action (what exactly should they do?)",
+    "Step 2: a specific action (what exactly should they do?)",
+    "Step 3: a specific action (what exactly should they do?)"
   ],
-  "encouragement": "One genuinely encouraging sentence acknowledging their strengths or potential."
-}}"""
+  "encouragement": "One genuinely encouraging sentence. Make improvement feel easy and achievable. Sound like a friend, not a consultant."
+}}
+
+=== FINAL CHECK ===
+Before responding, verify:
+- A college student can understand every sentence immediately
+- The joke is genuinely funny and uses a real detected fact
+- It is friendly and does not attack the user personally
+- The user understands what is wrong and knows what to do next
+- It sounds human, not corporate
+
+FORMULA: FACT → FUNNY COMPARISON → "OH, I GET IT" → SIMPLE FIX"""
 
 
 def build_readme_prompt(repo: dict) -> str:

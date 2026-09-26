@@ -17,25 +17,32 @@ import os
 import json
 import requests
 
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory, session, redirect
 from dotenv import load_dotenv
 
 import analyzer
 import prompts
 
+# Platform services & LinkedIn package
+from services.gemini import (
+    call_gemini,
+    is_gemini_configured,
+    get_gemini_api_key,
+    parse_gemini_json,
+)
+import linkedin.auth
+import linkedin.connector
+import linkedin.normalizer
+import linkedin.analyzer
+import prompts_linkedin
+
 load_dotenv(override=True)
 
 app = Flask(__name__, static_folder="static", static_url_path="")
-
-def get_gemini_api_key() -> str:
-    return os.getenv("GEMINI_API_KEY", "").strip()
+app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key-roast-my-profile-12345")
 
 def get_github_token() -> str:
     return os.getenv("GITHUB_TOKEN", "").strip()
-
-def is_gemini_configured() -> bool:
-    key = get_gemini_api_key()
-    return bool(key) and "your_gemini_api_key" not in key
 
 def is_github_token_configured() -> bool:
     token = get_github_token()
@@ -331,45 +338,7 @@ def analyze():
 
 
 # ---------------------------------------------------------------------------
-# AI ROAST GENERATION
-# ---------------------------------------------------------------------------
-
-def call_gemini(prompt: str, json_mode: bool = False, max_tokens: int = 800) -> str:
-    key = get_gemini_api_key()
-    models = ["gemini-flash-lite-latest", "gemini-flash-latest", "gemini-2.5-flash"]
-    payload = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {
-            "temperature": 0.85 if json_mode else 0.7,
-            "maxOutputTokens": max_tokens,
-        },
-    }
-    if json_mode:
-        payload["generationConfig"]["responseMimeType"] = "application/json"
-
-    last_err = None
-    for model in models:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}"
-        try:
-            resp = requests.post(url, json=payload, timeout=25)
-            if resp.status_code == 200:
-                data = resp.json()
-                return (
-                    data.get("candidates", [{}])[0]
-                    .get("content", {})
-                    .get("parts", [{}])[0]
-                    .get("text", "")
-                )
-            else:
-                last_err = f"HTTP {resp.status_code}"
-                app.logger.warning(f"Gemini model {model} returned {resp.status_code}")
-        except Exception as e:
-            last_err = str(e)
-            app.logger.warning(f"Gemini model {model} request error: {e}")
-
-    raise RuntimeError(f"Gemini API request failed: {last_err}")
-
-
+# GITHUB AI ROAST GENERATION
 # ---------------------------------------------------------------------------
 # AI ROAST GENERATION
 # ---------------------------------------------------------------------------
@@ -382,8 +351,12 @@ def roast():
     The LLM receives ONLY pre-calculated findings — never raw GitHub JSON.
     This prevents hallucination of GitHub facts.
 
-    If the AI fails or is not configured, we return a fallback summary
-    so the core product remains completely demoable and usable.
+    New output structure:
+    - roast_headline: short funny one-liner
+    - roast: 2-4 sentences with a real fact + funny comparison
+    - what_it_means: one plain-English sentence explaining the actual problem
+    - fix: one clear action to take right now
+    - top_problems, recommendations, encouragement: same as before
     """
     body = request.get_json(silent=True) or {}
     analysis_data = body.get("analysis", {})
@@ -395,22 +368,25 @@ def roast():
     fallback_response = {
         "ok": True,
         "fallback": True,
+        "roast_headline": "Your README took the day off. 😴",
         "roast": (
-            "Your profile has the energy of an abandoned side quest: great ideas started, "
-            "but half the repositories have no README and your bio is quieter than a midnight git commit. "
-            "Time to clean house and show recruiters what you can actually build."
+            "Half your projects have no README. "
+            "They're basically asking visitors to guess what they do — "
+            "like a restaurant with no menu. 😂"
         ),
+        "what_it_means": "People visiting your profile can't quickly understand what your projects are about.",
+        "fix": "Add a short README to your 3 best projects explaining what they do and how to run them.",
         "top_problems": weaknesses[:3] if weaknesses else [
-            "Several repositories are missing README documentation",
-            "Repository descriptions are either blank or too brief",
-            "Project activity is spread unevenly across repositories"
+            "Several repositories are missing a README file",
+            "Repository descriptions are blank or too short",
+            "Profile bio doesn't tell visitors what you do"
         ],
         "recommendations": [
-            "Add a clear README to your top 3 pinned repositories explaining the problem, features, and setup.",
-            "Write a 2-sentence bio stating your primary stack and what kinds of projects you build.",
-            "Tag repositories with descriptive GitHub topics so search and recruiters can find them."
+            "Add a simple README to your top 3 repos — just explain what it does and how to use it.",
+            "Write a 2-sentence bio saying what you build and what tech you use.",
+            "Add topic tags to your repos so people can actually find them."
         ],
-        "encouragement": "The foundation is clearly here. A couple of solid READMEs will immediately elevate your entire profile."
+        "encouragement": "Honestly, you're not far off. A couple small changes and this profile looks way better."
     }
 
     if not is_gemini_configured():
@@ -432,9 +408,19 @@ def roast():
 
         ai_result = json.loads(clean_text)
 
-        for field in ("roast", "top_problems", "recommendations", "encouragement"):
+        # Validate required fields from new prompt format
+        required = ("roast", "top_problems", "recommendations", "encouragement")
+        for field in required:
             if field not in ai_result:
                 raise ValueError(f"Missing field in AI response: {field}")
+
+        # Ensure new fields have sensible defaults if model omitted them
+        if "roast_headline" not in ai_result:
+            ai_result["roast_headline"] = ""
+        if "what_it_means" not in ai_result:
+            ai_result["what_it_means"] = ""
+        if "fix" not in ai_result:
+            ai_result["fix"] = ""
 
         return jsonify({"ok": True, "fallback": False, **ai_result})
 
@@ -519,6 +505,235 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 
 # ---------------------------------------------------------------------------
+# LINKEDIN PLATFORM LAYER ROUTES
+# ---------------------------------------------------------------------------
+
+@app.route("/api/linkedin/auth-url")
+def linkedin_auth_url():
+    """
+    Returns official LinkedIn OAuth 2.0 / OpenID Connect authorization URL.
+    Stores CSRF state in server session.
+    """
+    if not linkedin.auth.is_linkedin_configured():
+        return jsonify({
+            "ok": False,
+            "configured": False,
+            "error": "LinkedIn OAuth credentials not set in .env. Please use Profile Import or Demo Mode."
+        }), 200
+
+    try:
+        url, state = linkedin.auth.generate_authorization_url()
+        session["linkedin_oauth_state"] = state
+        return jsonify({"ok": True, "configured": True, "auth_url": url})
+    except Exception as e:
+        return jsonify({"ok": False, "configured": False, "error": str(e)}), 500
+
+
+@app.route("/api/linkedin/callback")
+def linkedin_callback():
+    """
+    Handles LinkedIn OAuth redirect callback.
+    Validates CSRF state and exchanges code for access token server-side.
+    """
+    code = request.args.get("code")
+    state = request.args.get("state")
+    error = request.args.get("error")
+    error_desc = request.args.get("error_description", "")
+
+    if error:
+        return redirect(f"/?linkedin_error={error}&msg={error_desc}")
+
+    saved_state = session.get("linkedin_oauth_state")
+    if not state or state != saved_state:
+        return redirect("/?linkedin_error=state_mismatch&msg=Security+state+validation+failed.")
+
+    try:
+        token_data = linkedin.auth.exchange_code_for_token(code)
+        access_token = token_data.get("access_token")
+        profile = linkedin.connector.fetch_member_profile(access_token)
+        session["linkedin_profile"] = profile
+        return redirect("/?linkedin_auth=success")
+    except Exception as e:
+        return redirect(f"/?linkedin_error=exchange_failed&msg={str(e)}")
+
+
+@app.route("/api/linkedin/demo")
+def linkedin_demo():
+    """
+    Provides sample demo profile data (Jordan Patel, 2nd-year student aiming for ML Intern).
+    Enables instant demonstration and testing under any network conditions.
+    """
+    profile = linkedin.connector.get_demo_linkedin_profile()
+    intent = {
+        "stage": "2nd year student",
+        "domain": "AI / Machine Learning",
+        "target_role": "ML Engineer Intern",
+        "goals": ["Internship"],
+        "timeline_months": 6
+    }
+    return jsonify({
+        "ok": True,
+        "data": {
+            "profile": profile,
+            "intent": intent,
+            "is_demo": True
+        }
+    })
+
+
+@app.route("/api/linkedin/import", methods=["POST"])
+def linkedin_import():
+    """
+    Path B: Manual Profile Data Import fallback.
+    Normalizes user-provided profile data and career intent.
+    Never pretends manual data came from LinkedIn's API.
+    """
+    body = request.get_json(silent=True) or {}
+    import_data = body.get("profile", {})
+    intent_data = body.get("intent", {})
+
+    profile = linkedin.normalizer.normalize_user_import(import_data)
+    intent = linkedin.normalizer.validate_career_intent(intent_data)
+    return jsonify({"ok": True, "data": {"profile": profile, "intent": intent}})
+
+
+@app.route("/api/linkedin/analyze", methods=["POST"])
+def linkedin_analyze():
+    """
+    Deterministic Goal-Aware LinkedIn Analysis Engine.
+    Evaluates 5 pillars (Total 100) and computes gap analysis against career intent.
+    """
+    body = request.get_json(silent=True) or {}
+    profile = body.get("profile", {})
+    intent = body.get("intent", {})
+
+    if not profile:
+        return jsonify({"ok": False, "error": "Missing profile data in request body."}), 400
+
+    intent = linkedin.normalizer.validate_career_intent(intent)
+    try:
+        analysis_result = linkedin.analyzer.analyze(profile, intent)
+        return jsonify({"ok": True, "analysis": analysis_result})
+    except Exception as e:
+        return jsonify({"ok": False, "error": f"LinkedIn analysis failed: {str(e)}"}), 500
+
+
+@app.route("/api/linkedin/roast", methods=["POST"])
+def linkedin_roast():
+    """
+    Calls Gemini with structured findings and career intent to produce a goal-aware roast,
+    what it means, and actionable next steps.
+    """
+    body = request.get_json(silent=True) or {}
+    analysis_data = body.get("analysis", {})
+    profile_data = body.get("profile", {})
+    intent_data = body.get("intent", {})
+
+    target_role = intent_data.get("target_role", "your target role")
+    timeline = intent_data.get("timeline_months", 6)
+    gaps = analysis_data.get("gap_analysis", {}).get("top_3_gaps", [])
+
+    fallback_response = {
+        "ok": True,
+        "fallback": True,
+        "roast_headline": f"Aiming for {target_role}, but your profile took a detour. 🗺️",
+        "roast": (
+            f"You want to land a {target_role} in {timeline} months, but your headline and projects read "
+            f"like a general study guide. Recruiters glance at your profile for 6 seconds — right now they're "
+            f"guessing what you actually want to do. 😂"
+        ),
+        "what_it_means": f"Recruiters looking for a {target_role} won't see immediate proof in your headline or projects.",
+        "fix": f"Rewrite your headline to explicitly state '{target_role}' and highlight your top 2 relevant skills.",
+        "top_problems": gaps[:3] if gaps else [
+            f"Headline does not clearly position you for {target_role}",
+            "Projects lack direct domain evidence",
+            "About section is generic"
+        ],
+        "recommendations": [
+            f"Update your headline to: '{target_role} | Core Stack & Key Specialization'",
+            "Rewrite your best project with problem-action-result bullet points",
+            "Add 3-5 core technical skills matching your chosen domain"
+        ],
+        "next_3_actions": [
+            "Headline: State your target role directly instead of passive terms like 'aspiring'",
+            "Projects: Add 1 flagship project demonstrating your domain tools",
+            "About: Tell recruiters your specific technical focus in 2 short paragraphs"
+        ],
+        "encouragement": f"You have plenty of time. A focused headline and one good project rewrite will immediately shift your profile into gear."
+    }
+
+    if not is_gemini_configured():
+        return jsonify(fallback_response), 200
+
+    prompt = prompts_linkedin.build_linkedin_roast_prompt(analysis_data, profile_data, intent_data)
+    try:
+        raw_text = call_gemini(prompt, json_mode=True, max_tokens=900)
+        ai_result = parse_gemini_json(raw_text)
+
+        for field in ("roast_headline", "roast", "what_it_means", "fix", "recommendations", "encouragement"):
+            if field not in ai_result:
+                ai_result[field] = fallback_response[field]
+        if "next_3_actions" not in ai_result:
+            ai_result["next_3_actions"] = fallback_response["next_3_actions"]
+
+        return jsonify({"ok": True, "fallback": False, **ai_result})
+    except Exception as e:
+        app.logger.warning(f"LinkedIn roast using fallback: {e}")
+        return jsonify(fallback_response), 200
+
+
+@app.route("/api/linkedin/rewrite", methods=["POST"])
+def linkedin_rewrite():
+    """
+    Profile Rewriting Engine: generates recruiter-optimized revisions for headline,
+    about, or project descriptions.
+    """
+    body = request.get_json(silent=True) or {}
+    field_type = body.get("field_type", "headline")
+    current_text = body.get("current_text", "")
+    intent = body.get("intent", {})
+    analysis = body.get("analysis", {})
+
+    target_role = intent.get("target_role", "Developer")
+    domain = intent.get("domain", "Software")
+
+    fallback_rewrites = {
+        "headline": {
+            "current": current_text or "Student / Developer",
+            "improved": f"{target_role} | {domain} Specialist | Building High-Impact Solutions",
+            "why_this_is_better": "Replaces passive student phrasing with an active professional title that recruiter search algorithms index immediately."
+        },
+        "about": {
+            "current": current_text or "Passionate student looking for opportunities.",
+            "improved": (
+                f"I am a {domain} enthusiast preparing for a {target_role} role. "
+                f"My focus is on designing scalable tools, solving real-world challenges, and mastering modern frameworks.\n\n"
+                f"Currently building hands-on projects and actively seeking internship opportunities where I can deliver measurable value."
+            ),
+            "why_this_is_better": "Directly links your current studies to your target role, highlighting initiative, specific domain focus, and clear readiness."
+        },
+        "project": {
+            "current": current_text or "Built a project using coding tools.",
+            "improved": f"Designed and deployed a {domain} tool solving key workflow bottlenecks. Integrated modern APIs and improved performance by 30%.",
+            "why_this_is_better": "Uses an active Problem-Action-Result format with quantifiable evidence rather than passive descriptions."
+        }
+    }
+
+    default_val = fallback_rewrites.get(field_type, fallback_rewrites["headline"])
+    if not is_gemini_configured():
+        return jsonify({"ok": True, "fallback": True, **default_val})
+
+    prompt = prompts_linkedin.build_rewrite_prompt(field_type, current_text, intent, analysis)
+    try:
+        raw_text = call_gemini(prompt, json_mode=True, max_tokens=600)
+        ai_result = parse_gemini_json(raw_text)
+        return jsonify({"ok": True, "fallback": False, **ai_result})
+    except Exception as e:
+        app.logger.warning(f"LinkedIn rewrite fallback: {e}")
+        return jsonify({"ok": True, "fallback": True, **default_val})
+
+
+# ---------------------------------------------------------------------------
 # HEALTH CHECK
 # ---------------------------------------------------------------------------
 
@@ -528,6 +743,7 @@ def health():
         "status": "ok",
         "gemini_key_set": is_gemini_configured(),
         "github_token_set": is_github_token_configured(),
+        "linkedin_configured": linkedin.auth.is_linkedin_configured(),
     })
 
 
