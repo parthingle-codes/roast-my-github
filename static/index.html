@@ -40,73 +40,461 @@
   <section id="screen-landing" class="screen active">
     <div class="landing-container">
       
-      <!-- Top Tagline Pill -->
-      <div class="hero-tag-pill">
-        <span class="pill-spark">⚡</span> Developer Portfolio Quality Scanner
+      <!-- Platform Selector Toggle -->
+      <div class="platform-selector-wrap">
+        <div class="platform-tabs" role="tablist" aria-label="Select Profile Platform">
+          <button class="platform-tab active" id="tab-platform-github" data-platform="github" type="button">
+            <span class="platform-tab-icon">🔥</span>
+            <div class="platform-tab-text">
+              <span class="platform-tab-title">GitHub</span>
+              <span class="platform-tab-desc">Code, repos &amp; tech presence</span>
+            </div>
+          </button>
+          <button class="platform-tab" id="tab-platform-linkedin" data-platform="linkedin" type="button">
+            <span class="platform-tab-icon">🔵</span>
+            <div class="platform-tab-text">
+              <span class="platform-tab-title">LinkedIn</span>
+              <span class="platform-tab-desc">Goal &amp; career positioning</span>
+            </div>
+            <span class="platform-tab-badge">V2 NEW</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Hero Headline -->
-      <h1 class="landing-title">
-        ROAST MY <span class="gradient-text">GITHUB</span>
-      </h1>
-
-      <p class="landing-subtitle">
-        Think your GitHub is recruiter-ready? Let's find out.<br />
-        <span class="subtitle-sub">Deterministic 4-category scoring meets unvarnished AI feedback.</span>
-      </p>
-
-      <!-- Input Card -->
-      <div class="hero-card">
-        <div class="input-group">
-          <div class="input-wrapper">
-            <span class="input-prefix">github.com/</span>
-            <input
-              id="username-input"
-              class="input-username"
-              type="text"
-              placeholder="username"
-              autocomplete="off"
-              autocorrect="off"
-              autocapitalize="none"
-              spellcheck="false"
-              maxlength="39"
-            />
-          </div>
-          <button id="btn-roast-me" class="btn-roast">
-            <span>ROAST ME</span>
-            <span class="btn-icon">🔥</span>
-          </button>
+      <!-- ================= GITHUB PANEL ================= -->
+      <div id="panel-platform-github" class="platform-panel active">
+        <!-- Top Tagline Pill -->
+        <div class="hero-tag-pill">
+          <span class="pill-spark">⚡</span> Developer Portfolio Quality Scanner
         </div>
 
-        <div class="demo-cta-container">
-          <button id="btn-try-demo" class="btn-demo">
-            <span class="demo-icon">🎯</span> Try Sample Profile <span class="demo-tag">(Demo Mode)</span>
-          </button>
-        </div>
+        <!-- Hero Headline -->
+        <h1 class="landing-title">
+          ROAST MY <span class="gradient-text">GITHUB</span>
+        </h1>
 
-        <p class="landing-note">
-          <span class="note-lock">🔒</span> Evaluates public profile &amp; repositories. No login required.
+        <p class="landing-subtitle">
+          Think your GitHub is recruiter-ready? Let's find out.<br />
+          <span class="subtitle-sub">Deterministic 4-category scoring meets unvarnished AI feedback.</span>
         </p>
-        <p id="landing-error" class="error-message"></p>
+
+        <!-- Input Card -->
+        <div class="hero-card">
+          <div class="input-group">
+            <div class="input-wrapper">
+              <span class="input-prefix">github.com/</span>
+              <input
+                id="username-input"
+                class="input-username"
+                type="text"
+                placeholder="username"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="none"
+                spellcheck="false"
+                maxlength="39"
+              />
+            </div>
+            <button id="btn-roast-me" class="btn-roast">
+              <span>ROAST ME</span>
+              <span class="btn-icon">🔥</span>
+            </button>
+          </div>
+
+          <div class="demo-cta-container">
+            <button id="btn-try-demo" class="btn-demo">
+              <span class="demo-icon">🎯</span> Try Sample Profile <span class="demo-tag">(Demo Mode)</span>
+            </button>
+          </div>
+
+          <p class="landing-note">
+            <span class="note-lock">🔒</span> Evaluates public profile &amp; repositories. No login required.
+          </p>
+          <p id="landing-error" class="error-message"></p>
+        </div>
+
+        <!-- Feature Badges -->
+        <div class="feature-chips">
+          <div class="chip">
+            <span class="chip-icon">📝</span>
+            <span class="chip-text">Documentation Audit</span>
+          </div>
+          <div class="chip">
+            <span class="chip-icon">⚡</span>
+            <span class="chip-text">Activity Signals</span>
+          </div>
+          <div class="chip">
+            <span class="chip-icon">🎨</span>
+            <span class="chip-text">Presentation Metric</span>
+          </div>
+          <div class="chip">
+            <span class="chip-icon">🤖</span>
+            <span class="chip-text">Gemini Roast Engine</span>
+          </div>
+        </div>
       </div>
 
-      <!-- Feature Badges -->
-      <div class="feature-chips">
-        <div class="chip">
-          <span class="chip-icon">📝</span>
-          <span class="chip-text">Documentation Audit</span>
+      <!-- ================= LINKEDIN PANEL ================= -->
+      <div id="panel-platform-linkedin" class="platform-panel">
+        <div class="hero-tag-pill hero-tag-pill-linkedin">
+          <span class="pill-spark">🎯</span> Goal-Aware Career Positioning
         </div>
-        <div class="chip">
-          <span class="chip-icon">⚡</span>
-          <span class="chip-text">Activity Signals</span>
+
+        <h1 class="landing-title">
+          ROAST MY <span class="gradient-text-linkedin">LINKEDIN</span>
+        </h1>
+
+        <p class="landing-subtitle">
+          A profile isn't just "good" or "bad" — it must prove you're ready for your target role.<br />
+          <span class="subtitle-sub">We align your Career Intent first, then audit your evidence and roast the gaps.</span>
+        </p>
+
+        <div class="hero-card linkedin-intro-card">
+          <div class="li-intro-header">
+            <span class="li-intro-icon">🧭</span>
+            <div class="li-intro-text">
+              <h3 class="li-intro-title">Targeted Career Intent Scanner</h3>
+              <p class="li-intro-desc">Tell us where you want to go (Role, Domain, Timeline). We examine whether your profile communicates evidence for that goal.</p>
+            </div>
+          </div>
+
+          <div class="li-feature-points">
+            <div class="li-point">
+              <span class="li-check">✓</span>
+              <span><strong>No Scraping:</strong> 100% compliant OAuth &amp; Profile Import</span>
+            </div>
+            <div class="li-point">
+              <span class="li-check">✓</span>
+              <span><strong>100-Point Deterministic Score:</strong> Positioning, Alignment &amp; Projects</span>
+            </div>
+            <div class="li-point">
+              <span class="li-check">✓</span>
+              <span><strong>Gap-Focused AI Roast:</strong> Hilarious, friendly, and actionable</span>
+            </div>
+          </div>
+
+          <div class="li-cta-wrap">
+            <button id="btn-start-linkedin" class="btn-roast btn-linkedin" type="button">
+              <span>EXPLORE CAREER INTENT FLOW</span>
+              <span class="btn-icon">→</span>
+            </button>
+          </div>
+
+          <p class="landing-note">
+            <span class="note-lock">🔒</span> Data-availability aware. We never fake missing or restricted fields.
+          </p>
         </div>
-        <div class="chip">
-          <span class="chip-icon">🎨</span>
-          <span class="chip-text">Presentation Metric</span>
+
+        <div class="feature-chips">
+          <div class="chip">
+            <span class="chip-icon">🎯</span>
+            <span class="chip-text">Goal Alignment</span>
+          </div>
+          <div class="chip">
+            <span class="chip-icon">💼</span>
+            <span class="chip-text">Professional Positioning</span>
+          </div>
+          <div class="chip">
+            <span class="chip-icon">🚀</span>
+            <span class="chip-text">Projects &amp; Evidence</span>
+          </div>
+          <div class="chip">
+            <span class="chip-icon">🤖</span>
+            <span class="chip-text">Gemini Roast &amp; Rewrite</span>
+          </div>
         </div>
-        <div class="chip">
-          <span class="chip-icon">🤖</span>
-          <span class="chip-text">Gemini Roast Engine</span>
+      </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       SCREEN 1B — LINKEDIN CAREER INTENT ONBOARDING (Phase 2)
+       ===================================================== -->
+  <section id="screen-linkedin-intent" class="screen">
+    <div class="landing-container intent-container">
+      
+      <div class="intent-header">
+        <button id="btn-back-to-landing" class="btn-back" type="button">
+          ← Back to Platforms
+        </button>
+        <div class="hero-tag-pill hero-tag-pill-linkedin">
+          <span class="pill-spark">🧭</span> Step 1 of 2: Define Your Direction
+        </div>
+        <h2 class="intent-title">Where are you heading?</h2>
+        <p class="intent-subtitle">
+          We don't judge your profile against a generic checklist.<br />
+          <span class="subtitle-sub">We evaluate whether it communicates evidence for your specific goals.</span>
+        </p>
+      </div>
+
+      <!-- Career Intent Form Card -->
+      <div class="hero-card intent-form-card" id="intent-form-card">
+        <form id="form-career-intent" onsubmit="return false;">
+          
+          <!-- Step 1: Current Stage -->
+          <div class="intent-section">
+            <label class="intent-label">
+              <span class="step-num">1</span> What is your current stage?
+            </label>
+            <div class="pill-group" id="group-stage">
+              <button type="button" class="intent-pill active" data-val="1st year">1st year</button>
+              <button type="button" class="intent-pill" data-val="2nd year">2nd year</button>
+              <button type="button" class="intent-pill" data-val="3rd year">3rd year</button>
+              <button type="button" class="intent-pill" data-val="Final year">Final year</button>
+              <button type="button" class="intent-pill" data-val="Recent graduate">Recent graduate</button>
+              <button type="button" class="intent-pill" data-val="Professional">Professional</button>
+              <button type="button" class="intent-pill" data-val="Other">Other</button>
+            </div>
+            <input type="hidden" id="intent-stage" value="1st year" />
+          </div>
+
+          <!-- Step 2: What are you pursuing? (Domain) -->
+          <div class="intent-section">
+            <label class="intent-label">
+              <span class="step-num">2</span> What domain are you pursuing?
+            </label>
+            <div class="pill-group" id="group-domain">
+              <button type="button" class="intent-pill" data-val="Software Development">Software Development</button>
+              <button type="button" class="intent-pill active" data-val="AI / Machine Learning">AI / Machine Learning</button>
+              <button type="button" class="intent-pill" data-val="Data Science">Data Science</button>
+              <button type="button" class="intent-pill" data-val="Cybersecurity">Cybersecurity</button>
+              <button type="button" class="intent-pill" data-val="Cloud / DevOps">Cloud / DevOps</button>
+              <button type="button" class="intent-pill" data-val="UI/UX">UI/UX</button>
+              <button type="button" class="intent-pill" data-val="Electronics / Embedded">Electronics / Embedded</button>
+              <button type="button" class="intent-pill" data-val="Research">Research</button>
+              <button type="button" class="intent-pill" data-val="Entrepreneurship">Entrepreneurship</button>
+              <button type="button" class="intent-pill" data-val="Other">Other</button>
+            </div>
+            <input type="hidden" id="intent-domain" value="AI / Machine Learning" />
+          </div>
+
+          <!-- Step 3: Target Role -->
+          <div class="intent-section">
+            <label class="intent-label" for="intent-target-role">
+              <span class="step-num">3</span> What is your target role?
+            </label>
+            <div class="input-wrapper role-input-wrap">
+              <span class="input-prefix">🎯</span>
+              <input
+                id="intent-target-role"
+                class="input-username"
+                type="text"
+                placeholder="e.g. ML Engineer Intern, Backend Developer"
+                value="ML Engineer Intern"
+                maxlength="60"
+                required
+              />
+            </div>
+            <div class="role-suggestions" id="role-suggestions">
+              <span class="suggestion-tag">ML Engineer Intern</span>
+              <span class="suggestion-tag">Data Scientist Intern</span>
+              <span class="suggestion-tag">AI Research Assistant</span>
+            </div>
+          </div>
+
+          <!-- Step 4: What are you preparing for? (Multi-select) -->
+          <div class="intent-section">
+            <label class="intent-label">
+              <span class="step-num">4</span> What are you preparing for? <span class="label-hint">(Select all that apply)</span>
+            </label>
+            <div class="pill-group multi-group" id="group-goals">
+              <button type="button" class="intent-pill multi-pill active" data-val="Internship">Internship</button>
+              <button type="button" class="intent-pill multi-pill" data-val="Placement">Placement</button>
+              <button type="button" class="intent-pill multi-pill" data-val="Freelance">Freelance</button>
+              <button type="button" class="intent-pill multi-pill" data-val="Higher Studies">Higher Studies</button>
+              <button type="button" class="intent-pill multi-pill" data-val="Research">Research</button>
+              <button type="button" class="intent-pill multi-pill" data-val="Entrepreneurship">Entrepreneurship</button>
+            </div>
+          </div>
+
+          <!-- Step 5: Timeline -->
+          <div class="intent-section">
+            <label class="intent-label">
+              <span class="step-num">5</span> What is your target timeline?
+            </label>
+            <div class="pill-group" id="group-timeline">
+              <button type="button" class="intent-pill" data-val="3">3 months</button>
+              <button type="button" class="intent-pill active" data-val="6">6 months</button>
+              <button type="button" class="intent-pill" data-val="12">1 year</button>
+            </div>
+            <input type="hidden" id="intent-timeline" value="6" />
+          </div>
+
+          <p id="intent-error" class="error-message"></p>
+
+          <div class="intent-actions">
+            <button id="btn-save-intent" class="btn-roast btn-linkedin" type="button">
+              <span>LOCK IN CAREER INTENT</span>
+              <span class="btn-icon">✓</span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Locked In Confirmation Card (Initially Hidden) -->
+      <div class="hero-card intent-confirmed-card hidden" id="intent-confirmed-card">
+        <div class="confirmed-badge">
+          <span class="badge-icon">🎯</span> CAREER INTENT LOCKED IN
+        </div>
+        <h3 class="confirmed-title">Ready for Goal-Aware Analysis</h3>
+        <p class="confirmed-sub">Your profile will be judged strictly against this target direction:</p>
+        
+        <div class="intent-summary-grid">
+          <div class="intent-summary-item">
+            <span class="summary-label">STAGE</span>
+            <span class="summary-value" id="summary-stage">—</span>
+          </div>
+          <div class="intent-summary-item">
+            <span class="summary-label">TARGET DOMAIN</span>
+            <span class="summary-value" id="summary-domain">—</span>
+          </div>
+          <div class="intent-summary-item">
+            <span class="summary-label">TARGET ROLE</span>
+            <span class="summary-value highlight-role" id="summary-role">—</span>
+          </div>
+          <div class="intent-summary-item">
+            <span class="summary-label">GOALS</span>
+            <span class="summary-value" id="summary-goals">—</span>
+          </div>
+          <div class="intent-summary-item">
+            <span class="summary-label">TIMELINE</span>
+            <span class="summary-value" id="summary-timeline">—</span>
+          </div>
+        </div>
+
+        <div class="intent-confirmed-actions">
+          <button id="btn-edit-intent" class="btn-demo" type="button">
+            ✏️ Edit Career Intent
+          </button>
+          <div class="phase-ready-pill">
+            <span class="pulse-dot"></span> Career Intent Locked In
+          </div>
+        </div>
+
+        <!-- Phase 3: LinkedIn Authentication Proof of Concept -->
+        <div class="auth-poc-section" id="auth-poc-section">
+          <div class="auth-poc-divider">
+            <span>STEP 2: LINKEDIN AUTHENTICATION (PROOF OF CONCEPT)</span>
+          </div>
+
+          <div class="auth-poc-buttons">
+            <button id="btn-oauth-connect" class="btn-roast btn-linkedin" type="button">
+              <span class="btn-icon">🔗</span>
+              <span>Connect with LinkedIn (OAuth 2.0 / OIDC)</span>
+            </button>
+            <button id="btn-demo-connect" class="btn-demo" type="button">
+              <span class="demo-icon">🧪</span>
+              <span>Test Authorized Member Data (POC Mode)</span>
+            </button>
+          </div>
+
+          <p id="oauth-status-msg" class="oauth-status-note"></p>
+
+          <!-- Debug Inspection Screen for Returned Data -->
+          <div id="auth-debug-screen" class="auth-debug-container hidden">
+            <div class="debug-badge">
+              <span class="pulse-dot"></span> LINKEDIN OIDC DATA RECEIVED (PROOF OF CONCEPT)
+            </div>
+
+            <!-- Identity Bar -->
+            <div class="debug-identity-bar">
+              <img id="debug-avatar" class="debug-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&crop=faces" alt="Avatar" />
+              <div class="debug-identity-info">
+                <h4 id="debug-name" class="debug-name">Member Name</h4>
+                <span id="debug-email" class="debug-email">member@example.com</span>
+                <span class="debug-scope-pill">Scope: openid profile email</span>
+              </div>
+            </div>
+
+            <!-- Field Availability Audit Table -->
+            <h4 class="debug-section-heading">Data Availability Audit (OIDC Inspection)</h4>
+            <div class="debug-table-wrap">
+              <table class="debug-table">
+                <thead>
+                  <tr>
+                    <th>Profile Field</th>
+                    <th>Availability Status</th>
+                    <th>Value / Access Note</th>
+                  </tr>
+                </thead>
+                <tbody id="debug-fields-tbody">
+                  <!-- Populated by JavaScript -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Developer Notice -->
+            <div class="debug-info-box">
+              <span class="info-icon">ℹ️</span>
+              <div class="info-content">
+                <strong>Data Availability Insight:</strong> Standard LinkedIn OpenID Connect grants verified access to basic member identity (Name, Photo, Email).
+                Richer sections (Experience, Education, Skills, Projects) are permission-restricted on LinkedIn's developer tier.
+                In <strong>Phase 4 &amp; 5</strong>, our architecture seamlessly handles this via the clearly labeled Profile Import fallback without faking data.
+              </div>
+            </div>
+
+            <!-- Phase 4: Clearly Labeled "Add Profile Information" Fallback -->
+            <div class="profile-import-box" id="profile-import-box">
+              <div class="import-header">
+                <span class="import-badge">PATH B</span>
+                <h4 class="import-title">Add Profile Information (Fallback Data Import)</h4>
+              </div>
+              <p class="import-desc">
+                Since rich profile sections (skills, projects, experience) are restricted by LinkedIn's developer tier,
+                you can provide them here. All imported fields are transparently marked as <code>user_provided</code>.
+              </p>
+
+              <div class="import-actions-bar">
+                <button id="btn-prefill-import" class="btn-demo btn-prefill" type="button">
+                  ✨ Pre-fill with Realistic Sample Data
+                </button>
+                <button id="btn-toggle-import-form" class="btn-back" type="button">
+                  📝 Open / Edit Manual Input Form ▾
+                </button>
+              </div>
+
+              <!-- Collapsible Manual Input Form -->
+              <div id="import-form-wrapper" class="import-form-wrapper hidden">
+                <div class="import-field">
+                  <label class="import-label" for="import-headline">Headline</label>
+                  <input id="import-headline" class="input-username" type="text" placeholder="e.g. Computer Science Student | Exploring AI &amp; ML" />
+                </div>
+
+                <div class="import-field">
+                  <label class="import-label" for="import-about">About / Summary</label>
+                  <textarea id="import-about" class="input-textarea" rows="3" placeholder="Brief summary of your technical focus and goals..."></textarea>
+                </div>
+
+                <div class="import-field">
+                  <label class="import-label" for="import-skills">Skills (Comma-separated)</label>
+                  <input id="import-skills" class="input-username" type="text" placeholder="e.g. Python, SQL, Machine Learning, Git" />
+                </div>
+
+                <div class="import-field">
+                  <label class="import-label" for="import-projects">Projects (Title: Description [Tech])</label>
+                  <textarea id="import-projects" class="input-textarea" rows="3" placeholder="Project Name: Description (Technologies used)..."></textarea>
+                </div>
+
+                <div class="import-submit-row">
+                  <button id="btn-save-import" class="btn-roast btn-linkedin" type="button">
+                    <span>💾 Save User-Provided Profile Data</span>
+                    <span class="btn-icon">✓</span>
+                  </button>
+                  <p id="import-save-status" class="import-save-status"></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Raw JSON Toggle -->
+            <div class="debug-json-accordion">
+              <button id="btn-toggle-json" class="btn-toggle-debug-json" type="button">
+                { } View Raw Normalized Profile JSON ▾
+              </button>
+              <pre id="debug-raw-json" class="debug-raw-json hidden"></pre>
+            </div>
+          </div>
         </div>
       </div>
 

@@ -615,6 +615,491 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Platform Selector Tabs (Phase 1)
+  function setPlatform(platform) {
+    document.querySelectorAll(".platform-tab").forEach(tab => {
+      tab.classList.toggle("active", tab.dataset.platform === platform);
+    });
+    document.querySelectorAll(".platform-panel").forEach(panel => {
+      panel.classList.toggle("active", panel.id === `panel-platform-${platform}`);
+    });
+  }
+
+  const tabGithub = document.getElementById("tab-platform-github");
+  const tabLinkedin = document.getElementById("tab-platform-linkedin");
+  if (tabGithub) {
+    tabGithub.addEventListener("click", () => setPlatform("github"));
+  }
+  if (tabLinkedin) {
+    tabLinkedin.addEventListener("click", () => setPlatform("linkedin"));
+  }
+
+  // ---------------------------------------------------------------------------
+  // PHASE 2: LINKEDIN CAREER INTENT ONBOARDING
+  // ---------------------------------------------------------------------------
+  const DOMAIN_ROLE_SUGGESTIONS = {
+    "AI / Machine Learning": ["ML Engineer Intern", "Data Scientist Intern", "AI Research Assistant"],
+    "Software Development": ["Full Stack Developer", "Backend Engineer Intern", "Frontend Engineer"],
+    "Data Science": ["Data Analyst Intern", "Junior Data Scientist", "BI Specialist"],
+    "Cybersecurity": ["Security Analyst Intern", "Junior SOC Analyst", "Penetration Tester"],
+    "Cloud / DevOps": ["Cloud Solutions Intern", "DevOps Engineer Intern", "Site Reliability Engineer"],
+    "UI/UX": ["UI/UX Designer Intern", "Product Design Intern", "Interaction Designer"],
+    "Electronics / Embedded": ["Embedded Systems Intern", "Firmware Engineer", "IoT Developer"],
+    "Research": ["Undergraduate Researcher", "Research Fellow", "Graduate Assistant"],
+    "Entrepreneurship": ["Technical Co-Founder", "Product Builder", "Founding Engineer"],
+    "Other": ["Software Specialist", "Junior Developer", "Technical Intern"]
+  };
+
+  const startLiBtn = document.getElementById("btn-start-linkedin");
+  if (startLiBtn) {
+    startLiBtn.addEventListener("click", () => {
+      showScreen("screen-linkedin-intent");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+
+  const backToLandingBtn = document.getElementById("btn-back-to-landing");
+  if (backToLandingBtn) {
+    backToLandingBtn.addEventListener("click", () => {
+      showScreen("screen-landing");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+
+  // Helper for single-select pill groups
+  function setupPillGroup(groupId, hiddenInputId, onSelect) {
+    const group = document.getElementById(groupId);
+    if (!group) return;
+    const input = document.getElementById(hiddenInputId);
+    group.querySelectorAll(".intent-pill").forEach(pill => {
+      pill.addEventListener("click", function () {
+        group.querySelectorAll(".intent-pill").forEach(p => p.classList.remove("active"));
+        this.classList.add("active");
+        if (input) input.value = this.dataset.val;
+        if (onSelect) onSelect(this.dataset.val);
+      });
+    });
+  }
+
+  setupPillGroup("group-stage", "intent-stage");
+  setupPillGroup("group-timeline", "intent-timeline");
+
+  // Domain selection updates target role suggestions
+  setupPillGroup("group-domain", "intent-domain", domain => {
+    const suggestions = DOMAIN_ROLE_SUGGESTIONS[domain] || DOMAIN_ROLE_SUGGESTIONS["Other"];
+    const container = document.getElementById("role-suggestions");
+    if (container) {
+      container.innerHTML = suggestions.map(s => `<span class="suggestion-tag">${escapeHtml(s)}</span>`).join("");
+      bindSuggestionTags();
+    }
+  });
+
+  // Multi-select goals
+  const goalsGroup = document.getElementById("group-goals");
+  if (goalsGroup) {
+    goalsGroup.querySelectorAll(".multi-pill").forEach(pill => {
+      pill.addEventListener("click", function () {
+        const currentlyActive = goalsGroup.querySelectorAll(".multi-pill.active");
+        if (this.classList.contains("active") && currentlyActive.length === 1) {
+          return; // keep at least 1 goal active
+        }
+        this.classList.toggle("active");
+      });
+    });
+  }
+
+  // Suggestion tags helper
+  function bindSuggestionTags() {
+    document.querySelectorAll(".suggestion-tag").forEach(tag => {
+      tag.addEventListener("click", function () {
+        const roleInput = document.getElementById("intent-target-role");
+        if (roleInput) {
+          roleInput.value = this.textContent.trim();
+          roleInput.focus();
+        }
+      });
+    });
+  }
+  bindSuggestionTags();
+
+  // Validate and Lock In Career Intent Form
+  const saveIntentBtn = document.getElementById("btn-save-intent");
+  if (saveIntentBtn) {
+    saveIntentBtn.addEventListener("click", () => {
+      const stageEl = document.getElementById("intent-stage");
+      const domainEl = document.getElementById("intent-domain");
+      const roleEl = document.getElementById("intent-target-role");
+      const timelineEl = document.getElementById("intent-timeline");
+      const errorEl = document.getElementById("intent-error");
+
+      const stage = stageEl ? stageEl.value.trim() : "1st year";
+      const domain = domainEl ? domainEl.value.trim() : "Software Development";
+      const targetRole = roleEl ? roleEl.value.trim() : "";
+      const goals = Array.from(document.querySelectorAll("#group-goals .multi-pill.active")).map(p => p.dataset.val);
+      const timelineMonths = parseInt(timelineEl ? timelineEl.value : "6", 10) || 6;
+
+      if (!targetRole || targetRole.length < 2) {
+        if (errorEl) errorEl.textContent = "❌ Please specify your target role (e.g. ML Engineer Intern).";
+        if (roleEl) roleEl.focus();
+        return;
+      }
+
+      if (goals.length === 0) {
+        if (errorEl) errorEl.textContent = "❌ Please select at least one goal (e.g. Internship, Placement).";
+        return;
+      }
+
+      if (errorEl) errorEl.textContent = "";
+
+      // Canonical Career Intent Object (global state)
+      window.currentCareerIntent = {
+        stage: stage,
+        domain: domain,
+        target_role: targetRole,
+        goals: goals,
+        timeline_months: timelineMonths
+      };
+
+      // Populate Confirmed Summary Card
+      const sStage = document.getElementById("summary-stage");
+      const sDomain = document.getElementById("summary-domain");
+      const sRole = document.getElementById("summary-role");
+      const sGoals = document.getElementById("summary-goals");
+      const sTimeline = document.getElementById("summary-timeline");
+
+      if (sStage) sStage.textContent = stage;
+      if (sDomain) sDomain.textContent = domain;
+      if (sRole) sRole.textContent = targetRole;
+      if (sGoals) sGoals.textContent = goals.join(", ");
+      if (sTimeline) sTimeline.textContent = `${timelineMonths} months`;
+
+      const formCard = document.getElementById("intent-form-card");
+      const confirmedCard = document.getElementById("intent-confirmed-card");
+
+      if (formCard) formCard.classList.add("hidden");
+      if (confirmedCard) {
+        confirmedCard.classList.remove("hidden");
+        smoothScrollTo("intent-confirmed-card");
+      }
+    });
+  }
+
+  // Edit Career Intent
+  const editIntentBtn = document.getElementById("btn-edit-intent");
+  if (editIntentBtn) {
+    editIntentBtn.addEventListener("click", () => {
+      const formCard = document.getElementById("intent-form-card");
+      const confirmedCard = document.getElementById("intent-confirmed-card");
+      if (confirmedCard) confirmedCard.classList.add("hidden");
+      if (formCard) {
+        formCard.classList.remove("hidden");
+        smoothScrollTo("intent-form-card");
+      }
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // PHASE 3: LINKEDIN AUTHENTICATION PROOF OF CONCEPT
+  // ---------------------------------------------------------------------------
+
+  function renderLinkedinDebugScreen(profile) {
+    if (!profile) return;
+
+    // Identity Bar
+    const avatarEl = document.getElementById("debug-avatar");
+    const nameEl = document.getElementById("debug-name");
+    const emailEl = document.getElementById("debug-email");
+
+    if (avatarEl) {
+      avatarEl.src = (profile.identity && profile.identity.photo)
+        ? profile.identity.photo
+        : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&crop=faces";
+    }
+    if (nameEl) nameEl.textContent = (profile.identity && profile.identity.name) || "Anonymous Member";
+    if (emailEl) emailEl.textContent = (profile.identity && profile.identity.email) || "No email in current scope";
+
+    // Field Availability Table
+    const tbody = document.getElementById("debug-fields-tbody");
+    if (tbody) {
+      const dataStatus = profile.data_status || {};
+      const fieldsConfig = [
+        { key: "name", label: "Full Name", val: (profile.identity && profile.identity.name) || "" },
+        { key: "photo", label: "Profile Picture", val: (profile.identity && profile.identity.photo) ? "Image URL verified" : "" },
+        { key: "email", label: "Email Address", val: (profile.identity && profile.identity.email) || "" },
+        { key: "headline", label: "Headline", val: profile.headline || "" },
+        { key: "about", label: "About / Summary", val: profile.about ? (profile.about.slice(0, 70) + "...") : "" },
+        { key: "experience", label: "Work Experience", val: profile.experience && profile.experience.length ? `${profile.experience.length} entries` : "" },
+        { key: "education", label: "Education History", val: profile.education && profile.education.length ? `${profile.education.length} entries` : "" },
+        { key: "skills", label: "Skills & Endorsements", val: profile.skills && profile.skills.length ? `${profile.skills.length} skills` : "" },
+        { key: "projects", label: "Projects Portfolio", val: profile.projects && profile.projects.length ? `${profile.projects.length} projects` : "" },
+        { key: "certifications", label: "Certifications", val: profile.certifications && profile.certifications.length ? `${profile.certifications.length} credentials` : "" },
+      ];
+
+      tbody.innerHTML = fieldsConfig.map(f => {
+        const status = dataStatus[f.key] || "not_authorized";
+        let statusBadge = "";
+        let noteText = f.val;
+
+        if (status === "available") {
+          statusBadge = '<span class="status-pill status-available">✓ available</span>';
+          if (!noteText) noteText = "Retrieved via OpenID Connect";
+        } else if (status === "user_provided") {
+          statusBadge = '<span class="status-pill status-user-provided">📝 user_provided</span>';
+          if (!noteText) noteText = "Supplied via profile import";
+        } else if (status === "missing") {
+          statusBadge = '<span class="status-pill status-missing">⚠️ missing</span>';
+          noteText = "Field is empty on profile";
+        } else {
+          statusBadge = '<span class="status-pill status-restricted">🔒 not_authorized</span>';
+          noteText = "Restricted on LinkedIn API tier";
+        }
+
+        return `<tr>
+          <td><strong>${escapeHtml(f.label)}</strong></td>
+          <td>${statusBadge}</td>
+          <td><span style="font-family:var(--font-mono); font-size:0.78rem;">${escapeHtml(noteText)}</span></td>
+        </tr>`;
+      }).join("");
+    }
+
+    // Raw JSON Dump
+    const rawJsonEl = document.getElementById("debug-raw-json");
+    if (rawJsonEl) {
+      rawJsonEl.textContent = JSON.stringify(profile, null, 2);
+    }
+
+    // Reveal debug screen
+    const debugScreen = document.getElementById("auth-debug-screen");
+    if (debugScreen) {
+      debugScreen.classList.remove("hidden");
+      setTimeout(() => smoothScrollTo("auth-debug-screen"), 100);
+    }
+  }
+
+  // Connect via LinkedIn OAuth Button
+  const oauthConnectBtn = document.getElementById("btn-oauth-connect");
+  if (oauthConnectBtn) {
+    oauthConnectBtn.addEventListener("click", () => {
+      const statusEl = document.getElementById("oauth-status-msg");
+      if (statusEl) {
+        statusEl.textContent = "Checking LinkedIn OAuth configuration...";
+        statusEl.style.color = "var(--text-dim)";
+      }
+      fetch("/api/linkedin/auth-url")
+        .then(r => r.json())
+        .then(res => {
+          if (res.ok && res.configured && res.auth_url) {
+            window.location.href = res.auth_url;
+          } else {
+            if (statusEl) {
+              statusEl.innerHTML = `⚠️ <strong>OAuth Setup Note:</strong> ${escapeHtml(res.error || "LinkedIn OAuth credentials not yet added to .env.")}<br><span style="color:#38bdf8;">👉 Click 'Test Authorized Member Data' below to inspect the complete OpenID Connect payload immediately!</span>`;
+              statusEl.style.color = "#fdba74";
+            }
+          }
+        })
+        .catch(err => {
+          if (statusEl) {
+            statusEl.textContent = "Error initiating OAuth: " + err.message;
+            statusEl.style.color = "#f87171";
+          }
+        });
+    });
+  }
+
+  // Test Authorized Member Data (POC Demo Connect)
+  const demoConnectBtn = document.getElementById("btn-demo-connect");
+  if (demoConnectBtn) {
+    demoConnectBtn.addEventListener("click", () => {
+      const statusEl = document.getElementById("oauth-status-msg");
+      if (statusEl) {
+        statusEl.textContent = "Loading authorized OpenID Connect member data...";
+        statusEl.style.color = "var(--text-dim)";
+      }
+      fetch("/api/linkedin/demo")
+        .then(r => r.json())
+        .then(res => {
+          if (res.ok && res.data && res.data.profile) {
+            if (statusEl) {
+              statusEl.textContent = "✅ Authorized member data loaded into Proof of Concept debugger.";
+              statusEl.style.color = "#3fb950";
+            }
+            renderLinkedinDebugScreen(res.data.profile);
+          }
+        })
+        .catch(err => {
+          if (statusEl) {
+            statusEl.textContent = "Error loading sample member: " + err.message;
+            statusEl.style.color = "#f87171";
+          }
+        });
+    });
+  }
+
+  // Toggle Raw JSON
+  const toggleJsonBtn = document.getElementById("btn-toggle-json");
+  if (toggleJsonBtn) {
+    toggleJsonBtn.addEventListener("click", () => {
+      const rawJsonEl = document.getElementById("debug-raw-json");
+      if (rawJsonEl) {
+        const isHidden = rawJsonEl.classList.toggle("hidden");
+        toggleJsonBtn.textContent = isHidden
+          ? "{ } View Raw Normalized Profile JSON ▾"
+          : "{ } Hide Raw Normalized Profile JSON ▴";
+      }
+    });
+  }
+
+  // Inspect URL parameters for OAuth redirect on page load
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get("linkedin_auth") === "success") {
+    setPlatform("linkedin");
+    showScreen("screen-linkedin-intent");
+    const formCard = document.getElementById("intent-form-card");
+    const confirmedCard = document.getElementById("intent-confirmed-card");
+    if (formCard) formCard.classList.add("hidden");
+    if (confirmedCard) confirmedCard.classList.remove("hidden");
+
+    fetch("/api/linkedin/me")
+      .then(r => r.json())
+      .then(res => {
+        if (res.ok && res.profile) {
+          const statusEl = document.getElementById("oauth-status-msg");
+          if (statusEl) {
+            statusEl.textContent = "✅ Official LinkedIn authorization successful! OpenID Connect payload retrieved.";
+            statusEl.style.color = "#3fb950";
+          }
+          renderLinkedinDebugScreen(res.profile);
+        }
+      });
+  } else if (urlParams.get("linkedin_error")) {
+    setPlatform("linkedin");
+    showScreen("screen-linkedin-intent");
+    const errorMsg = urlParams.get("msg") || urlParams.get("linkedin_error");
+    const statusEl = document.getElementById("oauth-status-msg");
+    if (statusEl) {
+      statusEl.textContent = `❌ LinkedIn OAuth Error: ${errorMsg}`;
+      statusEl.style.color = "#f87171";
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // PHASE 4: PROFILE DATA IMPORT FALLBACK (PATH B)
+  // ---------------------------------------------------------------------------
+  const toggleImportBtn = document.getElementById("btn-toggle-import-form");
+  if (toggleImportBtn) {
+    toggleImportBtn.addEventListener("click", () => {
+      const formWrap = document.getElementById("import-form-wrapper");
+      if (formWrap) {
+        const isHidden = formWrap.classList.toggle("hidden");
+        toggleImportBtn.textContent = isHidden
+          ? "📝 Open / Edit Manual Input Form ▾"
+          : "📝 Hide Manual Input Form ▴";
+      }
+    });
+  }
+
+  // Pre-fill button
+  const prefillBtn = document.getElementById("btn-prefill-import");
+  if (prefillBtn) {
+    prefillBtn.addEventListener("click", () => {
+      const headlineInput = document.getElementById("import-headline");
+      const aboutInput = document.getElementById("import-about");
+      const skillsInput = document.getElementById("import-skills");
+      const projectsInput = document.getElementById("import-projects");
+      const formWrap = document.getElementById("import-form-wrapper");
+
+      if (headlineInput) headlineInput.value = "Computer Science Student | Exploring Tech & Coding | Aspiring Developer";
+      if (aboutInput) aboutInput.value = "Passionate computer science student who loves solving problems and learning new technologies. Looking forward to exciting internship opportunities in software and machine learning.";
+      if (skillsInput) skillsInput.value = "Python, Java, C++, HTML/CSS, JavaScript, SQL, Git";
+      if (projectsInput) projectsInput.value = "Student Task Management App: Built a responsive web dashboard for students to organize assignments (JavaScript, HTML, CSS, Node.js)\nBasic Sales Data Analyzer: Wrote Python scripts to clean retail sales CSVs and generate statistical summary reports (Python, pandas, matplotlib)";
+
+      if (formWrap) formWrap.classList.remove("hidden");
+      if (toggleImportBtn) toggleImportBtn.textContent = "📝 Hide Manual Input Form ▴";
+
+      const statusEl = document.getElementById("import-save-status");
+      if (statusEl) {
+        statusEl.textContent = "✨ Realistic sample fields loaded. Click 'Save User-Provided Profile Data' below.";
+        statusEl.style.color = "#38bdf8";
+      }
+    });
+  }
+
+  // Save imported profile data
+  const saveImportBtn = document.getElementById("btn-save-import");
+  if (saveImportBtn) {
+    saveImportBtn.addEventListener("click", () => {
+      const headline = document.getElementById("import-headline").value.trim();
+      const about = document.getElementById("import-about").value.trim();
+      const skills = document.getElementById("import-skills").value.trim();
+      const rawProjects = document.getElementById("import-projects").value.trim();
+      const statusEl = document.getElementById("import-save-status");
+
+      // Parse projects lines
+      const projects = [];
+      if (rawProjects) {
+        rawProjects.split("\n").forEach(line => {
+          const parts = line.split(":");
+          if (parts.length >= 2) {
+            projects.push({
+              title: parts[0].trim(),
+              description: parts.slice(1).join(":").trim(),
+              technologies: []
+            });
+          } else if (line.trim()) {
+            projects.push({
+              title: line.trim(),
+              description: "Custom user-provided project description",
+              technologies: []
+            });
+          }
+        });
+      }
+
+      const importPayload = {
+        profile: {
+          headline: headline,
+          about: about,
+          skills: skills,
+          projects: projects
+        },
+        intent: window.currentCareerIntent || {}
+      };
+
+      if (statusEl) {
+        statusEl.textContent = "Saving and normalizing profile data...";
+        statusEl.style.color = "var(--text-dim)";
+      }
+
+      fetch("/api/linkedin/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(importPayload)
+      })
+        .then(r => r.json())
+        .then(res => {
+          if (res.ok && res.data && res.data.profile) {
+            window.currentNormalizedProfile = res.data.profile;
+            if (statusEl) {
+              statusEl.textContent = "✅ Profile data imported and validated! Audit table updated.";
+              statusEl.style.color = "#3fb950";
+            }
+            renderLinkedinDebugScreen(res.data.profile);
+          } else {
+            if (statusEl) {
+              statusEl.textContent = "❌ Import error: " + (res.error || "Failed to process profile data.");
+              statusEl.style.color = "#f87171";
+            }
+          }
+        })
+        .catch(err => {
+          if (statusEl) {
+            statusEl.textContent = "Error saving profile data: " + err.message;
+            statusEl.style.color = "#f87171";
+          }
+        });
+    });
+  }
+
   if (btn) {
     btn.addEventListener("click", triggerRoast);
   }

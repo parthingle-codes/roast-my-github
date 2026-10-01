@@ -557,6 +557,20 @@ def linkedin_callback():
         return redirect(f"/?linkedin_error=exchange_failed&msg={str(e)}")
 
 
+@app.route("/api/linkedin/me")
+def linkedin_me():
+    """
+    Returns the currently authorized LinkedIn profile stored in the session, if any.
+    Used by the frontend to render the debug/proof-of-concept screen after OAuth callback.
+    """
+    profile = session.get("linkedin_profile")
+    return jsonify({
+        "ok": True,
+        "authenticated": profile is not None,
+        "profile": profile,
+    })
+
+
 @app.route("/api/linkedin/demo")
 def linkedin_demo():
     """
